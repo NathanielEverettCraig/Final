@@ -14,10 +14,28 @@
 #include <Canis/ECS/Systems/JoltPhysics3DSystem.hpp>
 #include <algorithm>
 #include <cctype>
+#include <filesystem>
 #include <SDL3/SDL_timer.h>
 
 namespace Canis
 {
+    namespace
+    {
+        bool HasHierarchyParent(Entity *_entity)
+        {
+            if (_entity == nullptr)
+                return false;
+
+            if (_entity->HasComponent<RectTransform>() && _entity->GetComponent<RectTransform>().parent != nullptr)
+                return true;
+
+            if (_entity->HasComponent<Transform>() && _entity->GetComponent<Transform>().parent != nullptr)
+                return true;
+
+            return false;
+        }
+    }
+
     void Scene::Init(App *_app, Window *_window, InputManager *_inputManger, std::string _path)
     {
         app = _app;
@@ -253,10 +271,11 @@ namespace Canis
         LoadEntityNodes(_scriptRegistry, entities);
     }
 
-    void Scene::LoadEntityNodes(std::vector<ScriptConf>& _scriptRegistry, YAML::Node &_entities, bool _copyUUID)
+    std::vector<Entity*> Scene::LoadEntityNodes(std::vector<ScriptConf>& _scriptRegistry, YAML::Node &_entities, bool _copyUUID)
     {
         m_targetUUIDNewUUID.clear();
         m_entityConnectInfo.clear();
+        m_isLoadingEntityNodes = true;
         std::vector<Canis::Entity*> newEntitys = {};
 
         if (_entities)
@@ -356,6 +375,9 @@ namespace Canis
                 }
             }
         }
+
+        m_isLoadingEntityNodes = false;
+        return newEntitys;
     }
 
     Canis::Entity& Scene::DecodeEntity(std::vector<ScriptConf>& _scriptRegistry, YAML::Node _node, bool _copyUUID)
@@ -390,18 +412,56 @@ namespace Canis
             return;
         }
 
-        if (app->GetEditor().GetMode() == EditorMode::PLAY)
+        if (!m_isLoadingEntityNodes)
         {
             _variable = GetEntityWithUUID(_uuid);
             return;
         }
 
-        // editor edit mode
         EntityConnectInfo eci;
         eci.targetUUID = _uuid;
         eci.variable = &_variable;
 
         m_entityConnectInfo.push_back(eci);
+    }
+
+    std::vector<Entity*> Scene::Instantiate(const SceneAssetHandle &_sceneAssetHandle)
+    {
+        std::vector<Entity*> rootEntities = {};
+
+        if (_sceneAssetHandle.path.empty())
+            return rootEntities;
+
+        if (app == nullptr)
+            return rootEntities;
+
+        if (!std::filesystem::exists(_sceneAssetHandle.path))
+        {
+            Debug::Warning("Scene::Instantiate could not find scene '%s'.", _sceneAssetHandle.path.c_str());
+            return rootEntities;
+        }
+
+        try
+        {
+            YAML::Node root = YAML::LoadFile(_sceneAssetHandle.path);
+            YAML::Node entities = root["Entities"];
+            std::vector<Entity*> newEntities = LoadEntityNodes(app->GetScriptRegistry(), entities, false);
+
+            for (Entity *entity : newEntities)
+            {
+                if (entity != nullptr && !HasHierarchyParent(entity))
+                    rootEntities.push_back(entity);
+            }
+        }
+        catch (const YAML::Exception &_exception)
+        {
+            Debug::Warning(
+                "Scene::Instantiate failed to load '%s': %s",
+                _sceneAssetHandle.path.c_str(),
+                _exception.what());
+        }
+
+        return rootEntities;
     }
 
     void Scene::Save(std::vector<ScriptConf>& _scriptRegistry)

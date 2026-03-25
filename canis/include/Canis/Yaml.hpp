@@ -15,6 +15,8 @@
 
 extern std::string YAMLEncodeTexture(const Canis::TextureHandle &_textureHandle);
 extern Canis::TextureHandle YAMLDecodeTexture(std::string &_path);
+extern std::string YAMLEncodeSceneAssetHandle(const Canis::SceneAssetHandle &_sceneAssetHandle);
+extern Canis::SceneAssetHandle YAMLDecodeSceneAssetHandle(const std::string &_path);
 
 namespace YAML
 {
@@ -95,6 +97,23 @@ namespace YAML
             rhs.y = node[1].as<float>();
             rhs.z = node[2].as<float>();
             rhs.w = node[3].as<float>();
+            return true;
+        }
+    };
+
+    template <>
+    struct convert<Canis::SceneAssetHandle>
+    {
+        static Node encode(const Canis::SceneAssetHandle &_sceneAssetHandle)
+        {
+            Node node;
+            node = YAMLEncodeSceneAssetHandle(_sceneAssetHandle);
+            return node;
+        }
+
+        static bool decode(const Node &_node, Canis::SceneAssetHandle &_sceneAssetHandle)
+        {
+            _sceneAssetHandle = YAMLDecodeSceneAssetHandle(_node.as<std::string>(""));
             return true;
         }
     };

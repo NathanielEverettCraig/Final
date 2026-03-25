@@ -6,9 +6,19 @@ std::string YAMLEncodeTexture(const Canis::TextureHandle &_textureHandle)
     return Canis::AssetManager::GetTexture(_textureHandle.id)->GetPath();
 }
 
+std::string YAMLEncodeSceneAssetHandle(const Canis::SceneAssetHandle &_sceneAssetHandle)
+{
+    return _sceneAssetHandle.path;
+}
+
 Canis::TextureHandle YAMLDecodeTexture(std::string &_path)
 {
     return Canis::AssetManager::GetTextureHandle(_path);
+}
+
+Canis::SceneAssetHandle YAMLDecodeSceneAssetHandle(const std::string &_path)
+{
+    return Canis::SceneAssetHandle{ .path = _path };
 }
 
 namespace YAML

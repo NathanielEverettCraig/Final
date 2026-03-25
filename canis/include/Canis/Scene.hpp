@@ -1,4 +1,5 @@
 #pragma once
+#include <Canis/AssetHandle.hpp>
 #include <Canis/UUID.hpp>
 #include <Canis/Math.hpp>
 #include <Canis/External/entt.hpp>
@@ -55,9 +56,10 @@ namespace Canis
 
         void Load(std::vector<ScriptConf>& _scriptRegistry);
         void LoadSceneNode(std::vector<ScriptConf>& _scriptRegistry, YAML::Node &_root);
-        void LoadEntityNodes(std::vector<ScriptConf>& _scriptRegistry, YAML::Node &_entities, bool _copyUUID = true);
+        std::vector<Entity*> LoadEntityNodes(std::vector<ScriptConf>& _scriptRegistry, YAML::Node &_entities, bool _copyUUID = true);
         Canis::Entity& DecodeEntity(std::vector<ScriptConf>& _scriptRegistry, YAML::Node _node, bool _copyUUID = true);
         void GetEntityAfterLoad(Canis::UUID _uuid, Canis::Entity* &_variable);
+        std::vector<Entity*> Instantiate(const SceneAssetHandle &_sceneAssetHandle);
 
         Window& GetWindow() { return *m_window; }
         InputManager& GetInputManager() { return *m_inputManager; }
@@ -139,6 +141,7 @@ namespace Canis
         std::vector<int> m_entitiesToReady = {};
         std::vector<int> m_entitiesToDestroy = {};
         bool m_isUpdating = false;
+        bool m_isLoadingEntityNodes = false;
         bool m_editorCamera3DOverrideEnabled = false;
         bool m_editorCamera2DOverrideEnabled = false;
         Matrix4 m_editorCamera3DView = Matrix4(1.0f);

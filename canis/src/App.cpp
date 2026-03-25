@@ -314,6 +314,11 @@ namespace Canis
             _editor.InputEntity(_label, _idSuffix, _value);
         });
 
+        _editor.RegisterInspectorFieldDrawer<Canis::SceneAssetHandle>([](Editor& _editor, const char* _label, const char* _idSuffix, Canis::SceneAssetHandle& _value)
+        {
+            _editor.InputSceneAsset(_label, _idSuffix, _value);
+        });
+
         ScriptConf rectTransformConf = {
             .name = "Canis::RectTransform",
             .Construct = nullptr,

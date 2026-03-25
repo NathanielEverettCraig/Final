@@ -10,6 +10,7 @@
 
 #include <Canis/UUID.hpp>
 #include <Canis/Asset.hpp>
+#include <Canis/AssetHandle.hpp>
 
 namespace Canis
 {
@@ -64,6 +65,8 @@ namespace Canis
         void InputEntity(const std::string& _name, const char* _idSuffix, Canis::Entity* &_variable);
         void InputAnimationClip(const std::string& _name, Canis::AnimationClip2DID &_variable);
         void InputAnimationClip(const std::string& _name, const char* _idSuffix, Canis::AnimationClip2DID &_variable);
+        void InputSceneAsset(const std::string& _name, Canis::SceneAssetHandle &_variable);
+        void InputSceneAsset(const std::string& _name, const char* _idSuffix, Canis::SceneAssetHandle &_variable);
         //void InputScriptableEntity(const std::string& _name, const std::string& _script, );
 
         template <typename T, typename Drawer>
