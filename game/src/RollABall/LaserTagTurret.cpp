@@ -120,19 +120,19 @@ namespace RollABall
         const float yaw = std::atan2(-flatDirection.x, -flatDirection.z);
         const Canis::Vector3 rotation = Canis::Vector3(0.0f, yaw, 0.0f);
 
-        auto* pool = SuperPupUtilities::SimpleObjectPool::GetInstance();
+        auto* pool = SuperPupUtilities::SimpleObjectPool::Instance;
 
         if (pool == nullptr)
             return;
 
-        Canis::Entity* projectile = pool->SpawnFromPool("laser_bullet", _position, rotation);
+        Canis::Entity* projectile = pool->Spawn("laser_bullet", _position, rotation);
 
         if (projectile == nullptr)
             return;
 
         if (SuperPupUtilities::Bullet* bullet = projectile->GetScript<SuperPupUtilities::Bullet>())
         {
-            bullet->speed = projectileSpeed;
+            bullet->speed = projectileSpeed*10.0f;
             bullet->lifeTime = projectileLifeTime;
             bullet->hitImpulse = projectileHitImpulse;
             bullet->Launch();

@@ -9,28 +9,23 @@
 
 namespace SuperPupUtilities
 {
-    SimpleObjectPool* SimpleObjectPool::s_instance = nullptr;
-
-    SimpleObjectPool* SimpleObjectPool::GetInstance()
-    {
-        return s_instance;
-    }
+    SimpleObjectPool* SimpleObjectPool::Instance = nullptr;
 
     void SimpleObjectPool::Create()
     {
-        if (s_instance == nullptr)
+        if (Instance == nullptr)
         {
-            s_instance = this;
+            Instance = this;
             return;
         }
 
-        if (s_instance != this)
-            Canis::Debug::Warning("SimpleObjectPool: multiple pool instances found. Only the first instance will be used.");
+        if (Instance != this)
+            Canis::Debug::Warning("SimpleObjectPool: multiple pool instances found. Only the first Instance will be used.");
     }
 
     void SimpleObjectPool::Ready()
     {
-        if (s_instance != this)
+        if (Instance != this)
             return;
 
         BuildPools();
@@ -38,17 +33,14 @@ namespace SuperPupUtilities
 
     void SimpleObjectPool::Destroy()
     {
-        if (s_instance == this)
-            s_instance = nullptr;
+        if (Instance == this)
+            Instance = nullptr;
 
         m_poolDictionary.clear();
         m_initialized = false;
     }
 
-    void SimpleObjectPool::Update(float _dt)
-    {
-        
-    }
+    void SimpleObjectPool::Update(float _dt) {}
 
     void SimpleObjectPool::ApplySpawnTransform(
         Canis::Entity& _entity,
@@ -192,17 +184,11 @@ namespace SuperPupUtilities
         return pooledEntity;
     }
 
-    Canis::Entity* SimpleObjectPool::SpawnFromPool(
-        const std::string& _code,
-        const Canis::Vector3& _position,
-        const Canis::Vector3& _rotation)
+    Canis::Entity* SimpleObjectPool::Spawn(const std::string& _code)
     {
-        if (s_instance != this)
-            return nullptr;
-
         if (!m_initialized)
             BuildPools();
-
+        
         auto poolIt = m_poolDictionary.find(_code);
         if (poolIt == m_poolDictionary.end() || poolIt->second.empty())
         {
@@ -222,9 +208,20 @@ namespace SuperPupUtilities
             return nullptr;
         }
 
-        ApplySpawnTransform(*objectToSpawn, _position, _rotation);
         ResetHierarchyPhysics(*objectToSpawn);
         SetHierarchyActive(*objectToSpawn, true);
+        return objectToSpawn;
+    }
+    
+    Canis::Entity* SimpleObjectPool::Spawn(
+        const std::string& _code,
+        const Canis::Vector3& _position,
+        const Canis::Vector3& _rotation)
+    {
+        Canis::Entity* objectToSpawn = Spawn(_code);
+
+        ApplySpawnTransform(*objectToSpawn, _position, _rotation);
+        
         return objectToSpawn;
     }
 

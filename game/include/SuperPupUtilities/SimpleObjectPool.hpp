@@ -22,7 +22,7 @@ namespace SuperPupUtilities
 
         static constexpr const char* ScriptName = "SuperPupUtilities::SimpleObjectPool";
 
-        static SimpleObjectPool* GetInstance();
+        static SimpleObjectPool* Instance;
 
         std::vector<Pool> pools = {};
         bool logWarnings = true;
@@ -34,14 +34,13 @@ namespace SuperPupUtilities
         void Destroy() override;
         void Update(float _dt) override;
 
-        Canis::Entity* SpawnFromPool(
+        Canis::Entity* Spawn(const std::string& _code);
+        Canis::Entity* Spawn(
             const std::string& _code,
             const Canis::Vector3& _position,
             const Canis::Vector3& _rotation);
 
     private:
-        static SimpleObjectPool* s_instance;
-
         std::unordered_map<std::string, std::queue<Canis::Entity*>> m_poolDictionary = {};
         bool m_initialized = false;
 
