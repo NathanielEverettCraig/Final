@@ -1,4 +1,4 @@
-#include <AICombat/BrawlerStateMachine.hpp>
+#include <AICombat/BigBrawlerStateMachine.hpp>
 
 #include <Canis/App.hpp>
 #include <Canis/AudioManager.hpp>
@@ -13,39 +13,39 @@ namespace AICombat
 {
     namespace
     {
-        ScriptConf brawlerStateMachineConf = {};
+        ScriptConf BigBrawlerStateMachineConf = {};
     }
 
-    IdleState::IdleState(SuperPupUtilities::StateMachine& _stateMachine) :
+    BigIdleState::BigIdleState(SuperPupUtilities::StateMachine& _stateMachine) :
         State(Name, _stateMachine) {}
 
-    void IdleState::Enter()
+    void BigIdleState::Enter()
     {
-        if (BrawlerStateMachine* brawlerStatMachine = dynamic_cast<BrawlerStateMachine*>(m_stateMachine))
+        if (BigBrawlerStateMachine* brawlerStatMachine = dynamic_cast<BigBrawlerStateMachine*>(m_stateMachine))
             brawlerStatMachine->ResetHammerPose();
     }
 
-    void IdleState::Update(float)
+    void BigIdleState::Update(float)
     {
-        if (BrawlerStateMachine* brawlerStatMachine = dynamic_cast<BrawlerStateMachine*>(m_stateMachine))
+        if (BigBrawlerStateMachine* brawlerStatMachine = dynamic_cast<BigBrawlerStateMachine*>(m_stateMachine))
         {
             if (brawlerStatMachine->FindClosestTarget() != nullptr)
-                brawlerStatMachine->ChangeState(ChaseState::Name);
+                brawlerStatMachine->ChangeState(BigChaseState::Name);
         }
     }
 
-    ChaseState::ChaseState(SuperPupUtilities::StateMachine& _stateMachine) :
+    BigChaseState::BigChaseState(SuperPupUtilities::StateMachine& _stateMachine) :
         State(Name, _stateMachine) {}
 
-    void ChaseState::Enter()
+    void BigChaseState::Enter()
     {
-        if (BrawlerStateMachine* brawlerStatMachine = dynamic_cast<BrawlerStateMachine*>(m_stateMachine))
+        if (BigBrawlerStateMachine* brawlerStatMachine = dynamic_cast<BigBrawlerStateMachine*>(m_stateMachine))
             brawlerStatMachine->ResetHammerPose();
     }
 
-    void ChaseState::Update(float _dt)
+    void BigChaseState::Update(float _dt)
     {
-        BrawlerStateMachine* brawlerStatMachine = dynamic_cast<BrawlerStateMachine*>(m_stateMachine);
+        BigBrawlerStateMachine* brawlerStatMachine = dynamic_cast<BigBrawlerStateMachine*>(m_stateMachine);
         if (brawlerStatMachine == nullptr)
             return;
 
@@ -53,7 +53,7 @@ namespace AICombat
 
         if (target == nullptr)
         {
-            brawlerStatMachine->ChangeState(IdleState::Name);
+            brawlerStatMachine->ChangeState(BigIdleState::Name);
             return;
         }
 
@@ -61,25 +61,25 @@ namespace AICombat
 
         if (brawlerStatMachine->DistanceTo(*target) <= brawlerStatMachine->GetAttackRange())
         {
-            brawlerStatMachine->ChangeState(HammerTimeState::Name);
+            brawlerStatMachine->ChangeState(BighammerTimeState::Name);
             return;
         }
 
         brawlerStatMachine->MoveTowards(*target, moveSpeed, _dt);
     }
 
-    HammerTimeState::HammerTimeState(SuperPupUtilities::StateMachine& _stateMachine) :
+    BighammerTimeState::BighammerTimeState(SuperPupUtilities::StateMachine& _stateMachine) :
         State(Name, _stateMachine) {}
 
-    void HammerTimeState::Enter()
+    void BighammerTimeState::Enter()
     {
-        if (BrawlerStateMachine* brawlerStatMachine = dynamic_cast<BrawlerStateMachine*>(m_stateMachine))
+        if (BigBrawlerStateMachine* brawlerStatMachine = dynamic_cast<BigBrawlerStateMachine*>(m_stateMachine))
             brawlerStatMachine->SetHammerSwing(0.0f);
     }
 
-    void HammerTimeState::Update(float)
+    void BighammerTimeState::Update(float)
     {
-        BrawlerStateMachine* brawlerStatMachine = dynamic_cast<BrawlerStateMachine*>(m_stateMachine);
+        BigBrawlerStateMachine* brawlerStatMachine = dynamic_cast<BigBrawlerStateMachine*>(m_stateMachine);
         if (brawlerStatMachine == nullptr)
             return;
 
@@ -93,59 +93,59 @@ namespace AICombat
             return;
 
         if (brawlerStatMachine->FindClosestTarget() != nullptr)
-            brawlerStatMachine->ChangeState(ChaseState::Name);
+            brawlerStatMachine->ChangeState(BigChaseState::Name);
         else
-            brawlerStatMachine->ChangeState(IdleState::Name);
+            brawlerStatMachine->ChangeState(BigIdleState::Name);
     }
 
-    void HammerTimeState::Exit()
+    void BighammerTimeState::Exit()
     {
-        if (BrawlerStateMachine* brawlerStatMachine = dynamic_cast<BrawlerStateMachine*>(m_stateMachine))
+        if (BigBrawlerStateMachine* brawlerStatMachine = dynamic_cast<BigBrawlerStateMachine*>(m_stateMachine))
             brawlerStatMachine->ResetHammerPose();
     }
 
-    BrawlerStateMachine::BrawlerStateMachine(Canis::Entity& _entity) :
+    BigBrawlerStateMachine::BigBrawlerStateMachine(Canis::Entity& _entity) :
         SuperPupUtilities::StateMachine(_entity),
-        idleState(*this),
-        chaseState(*this),
-        hammerTimeState(*this) {}
+        BigIdleState(*this),
+        BigChaseState(*this),
+        BighammerTimeState(*this) {}
 
-    void RegisterBrawlerStateMachineScript(Canis::App& _app)
+    void RegisterBigBrawlerStateMachineScript(Canis::App& _app)
     {
-        REGISTER_PROPERTY(brawlerStateMachineConf, AICombat::BrawlerStateMachine, targetTag);
-        REGISTER_PROPERTY(brawlerStateMachineConf, AICombat::BrawlerStateMachine, detectionRange);
-        REGISTER_PROPERTY(brawlerStateMachineConf, AICombat::BrawlerStateMachine, bodyColliderSize);
-        RegisterAccessorProperty(brawlerStateMachineConf, AICombat::BrawlerStateMachine, chaseState, moveSpeed);
-        RegisterAccessorProperty(brawlerStateMachineConf, AICombat::BrawlerStateMachine, hammerTimeState, hammerRestDegrees);
-        RegisterAccessorProperty(brawlerStateMachineConf, AICombat::BrawlerStateMachine, hammerTimeState, hammerSwingDegrees);
-        RegisterAccessorProperty(brawlerStateMachineConf, AICombat::BrawlerStateMachine, hammerTimeState, attackRange);
-        RegisterAccessorProperty(brawlerStateMachineConf, AICombat::BrawlerStateMachine, hammerTimeState, attackDuration);
-        RegisterAccessorProperty(brawlerStateMachineConf, AICombat::BrawlerStateMachine, hammerTimeState, attackDamageTime);
-        REGISTER_PROPERTY(brawlerStateMachineConf, AICombat::BrawlerStateMachine, maxHealth);
-        REGISTER_PROPERTY(brawlerStateMachineConf, AICombat::BrawlerStateMachine, logStateChanges);
-        REGISTER_PROPERTY(brawlerStateMachineConf, AICombat::BrawlerStateMachine, hammerVisual);
-        REGISTER_PROPERTY(brawlerStateMachineConf, AICombat::BrawlerStateMachine, hitSfxPath1);
-        REGISTER_PROPERTY(brawlerStateMachineConf, AICombat::BrawlerStateMachine, hitSfxPath2);
-        REGISTER_PROPERTY(brawlerStateMachineConf, AICombat::BrawlerStateMachine, hitSfxVolume);
-        REGISTER_PROPERTY(brawlerStateMachineConf, AICombat::BrawlerStateMachine, deathEffectPrefab);
+        REGISTER_PROPERTY(BigBrawlerStateMachineConf, AICombat::BigBrawlerStateMachine, targetTag);
+        REGISTER_PROPERTY(BigBrawlerStateMachineConf, AICombat::BigBrawlerStateMachine, detectionRange);
+        REGISTER_PROPERTY(BigBrawlerStateMachineConf, AICombat::BigBrawlerStateMachine, bodyColliderSize);
+        RegisterAccessorProperty(BigBrawlerStateMachineConf, AICombat::BigBrawlerStateMachine, BigChaseState, moveSpeed);
+        RegisterAccessorProperty(BigBrawlerStateMachineConf, AICombat::BigBrawlerStateMachine, BighammerTimeState, hammerRestDegrees);
+        RegisterAccessorProperty(BigBrawlerStateMachineConf, AICombat::BigBrawlerStateMachine, BighammerTimeState, hammerSwingDegrees);
+        RegisterAccessorProperty(BigBrawlerStateMachineConf, AICombat::BigBrawlerStateMachine, BighammerTimeState, attackRange);
+        RegisterAccessorProperty(BigBrawlerStateMachineConf, AICombat::BigBrawlerStateMachine, BighammerTimeState, attackDuration);
+        RegisterAccessorProperty(BigBrawlerStateMachineConf, AICombat::BigBrawlerStateMachine, BighammerTimeState, attackDamageTime);
+        REGISTER_PROPERTY(BigBrawlerStateMachineConf, AICombat::BigBrawlerStateMachine, maxHealth);
+        REGISTER_PROPERTY(BigBrawlerStateMachineConf, AICombat::BigBrawlerStateMachine, logStateChanges);
+        REGISTER_PROPERTY(BigBrawlerStateMachineConf, AICombat::BigBrawlerStateMachine, hammerVisual);
+        REGISTER_PROPERTY(BigBrawlerStateMachineConf, AICombat::BigBrawlerStateMachine, hitSfxPath1);
+        REGISTER_PROPERTY(BigBrawlerStateMachineConf, AICombat::BigBrawlerStateMachine, hitSfxPath2);
+        REGISTER_PROPERTY(BigBrawlerStateMachineConf, AICombat::BigBrawlerStateMachine, hitSfxVolume);
+        REGISTER_PROPERTY(BigBrawlerStateMachineConf, AICombat::BigBrawlerStateMachine, deathEffectPrefab);
 
         DEFAULT_CONFIG_AND_REQUIRED(
-            brawlerStateMachineConf,
-            AICombat::BrawlerStateMachine,
+            BigBrawlerStateMachineConf,
+            AICombat::BigBrawlerStateMachine,
             Canis::Transform,
             Canis::Material,
             Canis::Model,
             Canis::Rigidbody,
             Canis::BoxCollider);
 
-        brawlerStateMachineConf.DEFAULT_DRAW_INSPECTOR(AICombat::BrawlerStateMachine);
+        BigBrawlerStateMachineConf.DEFAULT_DRAW_INSPECTOR(AICombat::BigBrawlerStateMachine);
 
-        _app.RegisterScript(brawlerStateMachineConf);
+        _app.RegisterScript(BigBrawlerStateMachineConf);
     }
 
-    DEFAULT_UNREGISTER_SCRIPT(brawlerStateMachineConf, BrawlerStateMachine)
+    DEFAULT_UNREGISTER_SCRIPT(BigBrawlerStateMachineConf, BigBrawlerStateMachine)
 
-    void BrawlerStateMachine::Create()
+    void BigBrawlerStateMachine::Create()
     {
         entity.GetComponent<Canis::Transform>();
 
@@ -165,7 +165,7 @@ namespace AICombat
         }
     }
 
-    void BrawlerStateMachine::Ready()
+    void BigBrawlerStateMachine::Ready()
     {
         if (entity.HasComponent<Canis::Material>())
         {
@@ -178,21 +178,21 @@ namespace AICombat
         m_useFirstHitSfx = true;
 
         ClearStates();
-        AddState(idleState);
-        AddState(chaseState);
-        AddState(hammerTimeState);
+        AddState(BigIdleState);
+        AddState(BigChaseState);
+        AddState(BighammerTimeState);
 
         ResetHammerPose();
-        ChangeState(IdleState::Name);
+        ChangeState(BigIdleState::Name);
     }
 
-    void BrawlerStateMachine::Destroy()
+    void BigBrawlerStateMachine::Destroy()
     {
         hammerVisual = nullptr;
         SuperPupUtilities::StateMachine::Destroy();
     }
 
-    void BrawlerStateMachine::Update(float _dt)
+    void BigBrawlerStateMachine::Update(float _dt)
     {
         if (!IsAlive())
             return;
@@ -201,7 +201,7 @@ namespace AICombat
         SuperPupUtilities::StateMachine::Update(_dt);
     }
 
-    Canis::Entity* BrawlerStateMachine::FindClosestTarget() const
+    Canis::Entity* BigBrawlerStateMachine::FindClosestTarget() const
     {
         if (targetTag.empty() || !entity.HasComponent<Canis::Transform>())
             return nullptr;
@@ -219,7 +219,7 @@ namespace AICombat
             if (!candidate->HasComponent<Canis::Transform>())
                 continue;
 
-            if (const BrawlerStateMachine* other = candidate->GetScript<BrawlerStateMachine>())
+            if (const BigBrawlerStateMachine* other = candidate->GetScript<BigBrawlerStateMachine>())
             {
                 if (!other->IsAlive())
                     continue;
@@ -238,7 +238,7 @@ namespace AICombat
         return closestTarget;
     }
 
-    float BrawlerStateMachine::DistanceTo(const Canis::Entity& _other) const
+    float BigBrawlerStateMachine::DistanceTo(const Canis::Entity& _other) const
     {
         if (!entity.HasComponent<Canis::Transform>() || !_other.HasComponent<Canis::Transform>())
             return std::numeric_limits<float>::max();
@@ -248,7 +248,7 @@ namespace AICombat
         return glm::distance(selfPosition, targetPosition);
     }
 
-    void BrawlerStateMachine::FaceTarget(const Canis::Entity& _target)
+    void BigBrawlerStateMachine::FaceTarget(const Canis::Entity& _target)
     {
         if (!entity.HasComponent<Canis::Transform>() || !_target.HasComponent<Canis::Transform>())
             return;
@@ -265,7 +265,7 @@ namespace AICombat
         transform.rotation.y = std::atan2(-direction.x, -direction.z);
     }
 
-    void BrawlerStateMachine::MoveTowards(const Canis::Entity& _target, float _speed, float _dt)
+    void BigBrawlerStateMachine::MoveTowards(const Canis::Entity& _target, float _speed, float _dt)
     {
         if (!entity.HasComponent<Canis::Transform>() || !_target.HasComponent<Canis::Transform>())
             return;
@@ -282,7 +282,7 @@ namespace AICombat
         transform.position += direction * _speed * _dt;
     }
 
-    void BrawlerStateMachine::ChangeState(const std::string& _stateName)
+    void BigBrawlerStateMachine::ChangeState(const std::string& _stateName)
     {
         if (SuperPupUtilities::StateMachine::GetCurrentStateName() == _stateName)
             return;
@@ -296,32 +296,32 @@ namespace AICombat
             Canis::Debug::Log("%s -> %s", entity.name.c_str(), _stateName.c_str());
     }
 
-    const std::string& BrawlerStateMachine::GetCurrentStateName() const
+    const std::string& BigBrawlerStateMachine::GetCurrentStateName() const
     {
         return SuperPupUtilities::StateMachine::GetCurrentStateName();
     }
 
-    float BrawlerStateMachine::GetStateTime() const
+    float BigBrawlerStateMachine::GetStateTime() const
     {
         return m_stateTime;
     }
 
-    float BrawlerStateMachine::GetAttackRange() const
+    float BigBrawlerStateMachine::GetAttackRange() const
     {
-        return hammerTimeState.attackRange;
+        return BighammerTimeState.attackRange;
     }
 
-    int BrawlerStateMachine::GetCurrentHealth() const
+    int BigBrawlerStateMachine::GetCurrentHealth() const
     {
         return m_currentHealth;
     }
 
-    void BrawlerStateMachine::ResetHammerPose()
+    void BigBrawlerStateMachine::ResetHammerPose()
     {
         SetHammerSwing(0.0f);
     }
 
-    void BrawlerStateMachine::SetHammerSwing(float _normalized)
+    void BigBrawlerStateMachine::SetHammerSwing(float _normalized)
     {
         if (hammerVisual == nullptr || !hammerVisual->HasComponent<Canis::Transform>())
             return;
@@ -333,10 +333,10 @@ namespace AICombat
             : (1.0f - normalized) * 2.0f;
 
         hammerTransform.rotation.x = DEG2RAD *
-            (hammerTimeState.hammerRestDegrees + (hammerTimeState.hammerSwingDegrees * swingBlend));
+            (BighammerTimeState.hammerRestDegrees + (BighammerTimeState.hammerSwingDegrees * swingBlend));
     }
 
-    void BrawlerStateMachine::TakeDamage(int _damage)
+    void BigBrawlerStateMachine::TakeDamage(int _damage)
     {
         if (!IsAlive())
             return;
@@ -372,7 +372,7 @@ namespace AICombat
         entity.Destroy();
     }
 
-    void BrawlerStateMachine::PlayHitSfx()
+    void BigBrawlerStateMachine::PlayHitSfx()
     {
         const Canis::AudioAssetHandle& selectedSfx = m_useFirstHitSfx ? hitSfxPath1 : hitSfxPath2;
         m_useFirstHitSfx = !m_useFirstHitSfx;
@@ -383,7 +383,7 @@ namespace AICombat
         Canis::AudioManager::PlaySFX(selectedSfx, std::clamp(hitSfxVolume, 0.0f, 1.0f));
     }
 
-    void BrawlerStateMachine::SpawnDeathEffect()
+    void BigBrawlerStateMachine::SpawnDeathEffect()
     {
         if (deathEffectPrefab.Empty() || !entity.HasComponent<Canis::Transform>())
             return;
@@ -403,7 +403,7 @@ namespace AICombat
         }
     }
 
-    bool BrawlerStateMachine::IsAlive() const
+    bool BigBrawlerStateMachine::IsAlive() const
     {
         return m_currentHealth > 0;
     }
