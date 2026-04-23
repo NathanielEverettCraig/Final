@@ -14,7 +14,7 @@ using namespace Canis;
 
 namespace TankGame
 {
-
+ 
     ScriptConf conf = {};
 
     void RegisterBulletScript(Canis::App &_app)

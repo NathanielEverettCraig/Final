@@ -4,6 +4,8 @@
 #include <AICombat/BigBrawlerStateMachine.hpp>
 #include <AICombat/BrawlerStateMachine.hpp>
 #include <AICombat/HammerDamage.hpp>
+#include <AICombat/MageBolt.hpp>
+#include <AICombat/MageDamage.hpp>
 #include <ECSExample/ECSExampleComponents.hpp>
 #include <ECSExample/ECSExampleSystems.hpp>
 #include <RollABall/BoostPad.hpp>
@@ -27,6 +29,8 @@ inline void RegisterGeneratedGameContent(Canis::App &_app)
     AICombat::RegisterBigBrawlerStateMachineScript(_app);
     AICombat::RegisterBrawlerStateMachineScript(_app);
     AICombat::RegisterHammerDamageScript(_app);
+    AICombat::RegisterMageBoltScript(_app);
+    AICombat::RegisterMageDamageScript(_app);
     ECSExample::RegisterCollectibleComponent(_app);
     ECSExample::RegisterCollectibleSystem(_app);
     ECSExample::RegisterHoverComponent(_app);
@@ -58,6 +62,8 @@ inline void UnRegisterGeneratedGameContent(Canis::App &_app)
     AICombat::UnRegisterBigBrawlerStateMachineScript(_app);
     AICombat::UnRegisterBrawlerStateMachineScript(_app);
     AICombat::UnRegisterHammerDamageScript(_app);
+    AICombat::UnRegisterMageBoltScript(_app);
+    AICombat::UnRegisterMageDamageScript(_app);
     ECSExample::UnRegisterCollectibleComponent(_app);
     ECSExample::UnRegisterCollectibleSystem(_app);
     ECSExample::UnRegisterHoverComponent(_app);
