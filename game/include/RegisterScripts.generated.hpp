@@ -2,9 +2,9 @@
 #pragma once
 
 #include <AICombat/BigBrawlerStateMachine.hpp>
+#include <AICombat/Bolt.hpp>
 #include <AICombat/BrawlerStateMachine.hpp>
 #include <AICombat/HammerDamage.hpp>
-#include <AICombat/MageBolt.hpp>
 #include <AICombat/MageDamage.hpp>
 #include <ECSExample/ECSExampleComponents.hpp>
 #include <ECSExample/ECSExampleSystems.hpp>
@@ -27,9 +27,9 @@
 inline void RegisterGeneratedGameContent(Canis::App &_app)
 {
     AICombat::RegisterBigBrawlerStateMachineScript(_app);
+    AICombat::RegisterBoltScript(_app);
     AICombat::RegisterBrawlerStateMachineScript(_app);
     AICombat::RegisterHammerDamageScript(_app);
-    AICombat::RegisterMageBoltScript(_app);
     AICombat::RegisterMageDamageScript(_app);
     ECSExample::RegisterCollectibleComponent(_app);
     ECSExample::RegisterCollectibleSystem(_app);
@@ -60,9 +60,9 @@ inline void RegisterGeneratedGameContent(Canis::App &_app)
 inline void UnRegisterGeneratedGameContent(Canis::App &_app)
 {
     AICombat::UnRegisterBigBrawlerStateMachineScript(_app);
+    AICombat::UnRegisterBoltScript(_app);
     AICombat::UnRegisterBrawlerStateMachineScript(_app);
     AICombat::UnRegisterHammerDamageScript(_app);
-    AICombat::UnRegisterMageBoltScript(_app);
     AICombat::UnRegisterMageDamageScript(_app);
     ECSExample::UnRegisterCollectibleComponent(_app);
     ECSExample::UnRegisterCollectibleSystem(_app);

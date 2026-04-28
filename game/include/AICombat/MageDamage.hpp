@@ -8,12 +8,11 @@ namespace AICombat
 {
     class BrawlerStateMachine;
 
-    class MageDamage : public Canis::ScriptableEntity
+    class MageDamage : public Canis::ScriptableEntity 
     {
     public:
         static constexpr const char* ScriptName = "AICombat::MageDamage";
 
-        Canis::Entity* owner = nullptr;
         Canis::Vector3 sensorSize = Canis::Vector3(1.0f);
         int damage = 20;
         std::string targetTag = "";
@@ -27,8 +26,6 @@ namespace AICombat
         void CheckSensorEnter();
 
     private:
-        BrawlerStateMachine* GetOwnerStateMachine();
-        Canis::Entity* FindOwnerFromHierarchy() const;
         bool HasDamagedThisSwing(Canis::Entity& _target) const;
 
         std::vector<Canis::Entity*> m_hitTargetsThisSwing = {};

@@ -23,7 +23,6 @@ namespace AICombat
 
     void RegisterMageDamageScript(Canis::App& _app)
     {
-        REGISTER_PROPERTY(MageDamageConf, AICombat::MageDamage, owner);
         REGISTER_PROPERTY(MageDamageConf, AICombat::MageDamage, sensorSize);
         REGISTER_PROPERTY(MageDamageConf, AICombat::MageDamage, damage);
         REGISTER_PROPERTY(MageDamageConf, AICombat::MageDamage, targetTag);
@@ -59,14 +58,7 @@ namespace AICombat
 
     void MageDamage::Ready()
     {
-        if (owner == nullptr)
-            owner = FindOwnerFromHierarchy();
 
-        if (targetTag.empty())
-        {
-            if (BrawlerStateMachine* ownerStateMachine = GetOwnerStateMachine())
-                targetTag = ownerStateMachine->targetTag;
-        }
     }
 
     void MageDamage::Update(float)
@@ -79,16 +71,9 @@ namespace AICombat
         if (!entity.HasComponents<Canis::BoxCollider, Canis::Rigidbody>())
             return;
 
-        BrawlerStateMachine* ownerStateMachine = GetOwnerStateMachine();
-        if (ownerStateMachine == nullptr || !ownerStateMachine->IsAlive())
-        {
-            m_hitTargetsThisSwing.clear();
-            return;
-        }
+        
 
-        const bool damageWindowOpen =
-            ownerStateMachine->GetCurrentStateName() == HammerTimeState::Name &&
-            ownerStateMachine->GetStateTime() >= ownerStateMachine->hammerTimeState.attackDamageTime;
+
 
         if (!damageWindowOpen)
         {
@@ -149,4 +134,6 @@ namespace AICombat
         return std::find(m_hitTargetsThisSwing.begin(), m_hitTargetsThisSwing.end(), &_target)
             != m_hitTargetsThisSwing.end();
     }
+
+   
 }
